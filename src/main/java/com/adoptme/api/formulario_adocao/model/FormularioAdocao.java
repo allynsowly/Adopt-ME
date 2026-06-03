@@ -36,7 +36,6 @@ public class FormularioAdocao {
     @Column(name = "justificativa_status", length = 500)
     private String justificativaStatus;
 
-    // --- Respostas do Formulário de Adoção (Campos de triagem) ---
     @Column(name = "motivo_adocao", nullable = false, columnDefinition = "TEXT")
     private String motivoAdocao;
 
@@ -46,15 +45,13 @@ public class FormularioAdocao {
     @Column(name = "tipo_residencia", nullable = false)
     private String tipoResidencia;
 
-    // --- Auditoria Automática ---
     @Column(name = "data_solicitacao", nullable = false)
     private LocalDateTime dataSolicitacao;
 
-    // O gatilho que você aprendeu! Roda automático antes do INSERT no banco
     @PrePersist
     protected void onCreate() {
         this.dataSolicitacao = LocalDateTime.now();
-        this.status = StatusSolicitacao.PENDENTE; // Garante o estado inicial seguro
+        this.status = StatusSolicitacao.PENDENTE;
     }
 
 }
