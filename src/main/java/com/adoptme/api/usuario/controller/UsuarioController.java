@@ -1,12 +1,14 @@
-package com.adoptme.api.controller;
+package com.adoptme.api.usuario.controller;
 
-import com.adoptme.api.domain.Usuario;
+
 import com.adoptme.api.dto.UsuarioRequestDTO;
 import com.adoptme.api.dto.UsuarioResponseDTO;
 import com.adoptme.api.mapper.UsuarioMapper;
-import com.adoptme.api.service.UsuarioService;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import com.adoptme.api.usuario.domain.Usuario;
+import com.adoptme.api.usuario.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -1,7 +1,7 @@
-package com.adoptme.api.service;
+package com.adoptme.api.usuario.service;
 
-import com.adoptme.api.domain.Usuario;
-import com.adoptme.api.repository.UsuarioRepository;
+import com.adoptme.api.usuario.domain.Usuario;
+import com.adoptme.api.usuario.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

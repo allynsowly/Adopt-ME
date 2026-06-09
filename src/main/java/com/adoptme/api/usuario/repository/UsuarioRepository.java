@@ -1,6 +1,6 @@
-package com.adoptme.api.repository;
+package com.adoptme.api.usuario.repository;
 
-import com.adoptme.api.domain.Usuario;
+import com.adoptme.api.usuario.domain.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

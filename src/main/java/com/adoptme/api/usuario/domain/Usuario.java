@@ -1,4 +1,4 @@
-package com.adoptme.api.domain;
+package com.adoptme.api.usuario.domain;
 
 import jakarta.persistence.*;
 
