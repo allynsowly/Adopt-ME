@@ -1,8 +1,8 @@
 package com.adoptme.api.usuario.controller;
 
 
-import com.adoptme.api.dto.UsuarioRequestDTO;
-import com.adoptme.api.dto.UsuarioResponseDTO;
+import com.adoptme.api.usuario.dto.UsuarioRequestDTO;
+import com.adoptme.api.usuario.dto.UsuarioResponseDTO;
 import com.adoptme.api.mapper.UsuarioMapper;
 
 import io.swagger.v3.oas.annotations.Operation;

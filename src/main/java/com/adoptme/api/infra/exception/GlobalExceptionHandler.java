@@ -1,7 +1,7 @@
 package com.adoptme.api.infra.exception;
 
-import com.adoptme.api.formulario_adocao.dto.ErroRespostaDto;
-import com.adoptme.api.formulario_adocao.exececao.AnimalJaAdotadoException;
+import com.adoptme.api.formularioadocao.dto.ErroRespostaDto;
+import com.adoptme.api.formularioadocao.exception.AnimalJaAdotadoException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
