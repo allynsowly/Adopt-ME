@@ -85,15 +85,4 @@ public class FormularioAdocaoService {
                 .orElseThrow(() -> new EntityNotFoundException("Formulário não encontrado."));
         return mapper.toDto(formulario);
     }
-
-    @Transactional
-    public void deletarSolicitacao(Long id) {
-        FormularioAdocao formulario = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(
-                        "Formulário de adoção não encontrado com o ID: " + id));
-
-        repository.delete(formulario);
-
-        log.info("Formulário de adoção deletado com sucesso. ID: {}", id);
-    }
 }
