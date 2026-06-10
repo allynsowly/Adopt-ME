@@ -28,48 +28,78 @@ public class FormularioAdocaoService {
 
     @Transactional
     public FormularioAdocaoResponseDto criarSolicitacao(FormularioAdocaoRequestDto dto) {
-        Animal animal = animalRepository.findById(dto.animalId())
-                .orElseThrow(() -> new EntityNotFoundException("Animal não encontrado com o ID: " + dto.animalId()));
 
-        if (animal.getAdotado()) {
-            throw new AnimalJaAdotadoException("Não é possível enviar a solicitação. Este animal já foi adotado!");
+        Animal animal = animalRepository.findById(dto.animalId())
+                .orElseThrow(() ->
+                        new EntityNotFoundException(
+                                "Animal não encontrado com o ID: " + dto.animalId()));
+
+        if (Boolean.TRUE.equals(animal.getAdotado())) {
+            throw new AnimalJaAdotadoException(
+                    "Não é possível enviar a solicitação. Este animal já foi adotado.");
         }
 
         FormularioAdocao formulario = mapper.toEntity(dto);
-
         formulario.setAnimal(animal);
 
-        FormularioAdocao formularioSalvo = repository.save(formulario);
+        FormularioAdocao salvo = repository.save(formulario);
 
-        return mapper.toDto(formularioSalvo);
+        log.info("Solicitação de adoção criada. ID: {}", salvo.getId());
+
+        return mapper.toDto(salvo);
     }
-
 
     @Transactional
     public void aprovarSolicitacao(Long id) {
-        FormularioAdocao formulario = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Formulário de adoção não encontrado com o ID: " + id));
 
-        if (formulario.getAnimal().getAdotado()) {
-            throw new AnimalJaAdotadoException("Este animal já foi adotado através de outra solicitação.");
+        FormularioAdocao formulario = buscarFormulario(id);
+
+        if (formulario.getStatus() == StatusSolicitacao.REJEITADO) {
+            throw new IllegalStateException(
+                    "Não é possível aprovar uma solicitação rejeitada.");
+        }
+
+        if (Boolean.TRUE.equals(formulario.getAnimal().getAdotado())) {
+            throw new AnimalJaAdotadoException(
+                    "Este animal já foi adotado através de outra solicitação.");
         }
 
         formulario.setStatus(StatusSolicitacao.APROVADO);
-
         formulario.getAnimal().setAdotado(true);
 
-    }
+        List<FormularioAdocao> solicitacoes =
+                repository.findByAnimalId(formulario.getAnimal().getId());
 
+        for (FormularioAdocao solicitacao : solicitacoes) {
+
+            if (!solicitacao.getId().equals(formulario.getId())
+                    && solicitacao.getStatus() == StatusSolicitacao.PENDENTE) {
+
+                solicitacao.setStatus(StatusSolicitacao.REJEITADO);
+
+                solicitacao.setJustificativaStatus(
+                        "Animal adotado por outro solicitante.");
+            }
+        }
+
+        log.info("Solicitação aprovada. ID: {}", id);
+    }
 
     @Transactional
     public void rejeitarSolicitacao(Long id, String justificativa) {
-        FormularioAdocao formulario = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Formulário de adoção não encontrado com o ID: " + id));
+
+        FormularioAdocao formulario = buscarFormulario(id);
+
+        if (formulario.getStatus() == StatusSolicitacao.APROVADO) {
+            throw new IllegalStateException(
+                    "Não é possível rejeitar uma solicitação aprovada.");
+        }
 
         formulario.setStatus(StatusSolicitacao.REJEITADO);
         formulario.setJustificativaStatus(justificativa);
-    }
 
+        log.info("Solicitação rejeitada. ID: {}", id);
+    }
 
     @Transactional(readOnly = true)
     public List<FormularioAdocaoResponseDto> listarTodos() {
@@ -81,19 +111,23 @@ public class FormularioAdocaoService {
 
     @Transactional(readOnly = true)
     public FormularioAdocaoResponseDto buscarPorId(Long id) {
-        FormularioAdocao formulario = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Formulário não encontrado."));
-        return mapper.toDto(formulario);
+        return mapper.toDto(buscarFormulario(id));
     }
 
     @Transactional
     public void deletarSolicitacao(Long id) {
-        FormularioAdocao formulario = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(
-                        "Formulário de adoção não encontrado com o ID: " + id));
+
+        FormularioAdocao formulario = buscarFormulario(id);
 
         repository.delete(formulario);
 
         log.info("Formulário de adoção deletado com sucesso. ID: {}", id);
+    }
+
+    private FormularioAdocao buscarFormulario(Long id) {
+        return repository.findById(id)
+                .orElseThrow(() ->
+                        new EntityNotFoundException(
+                                "Formulário de adoção não encontrado com o ID: " + id));
     }
 }
