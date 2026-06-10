@@ -7,9 +7,9 @@ import com.adoptme.api.animal.enums.TagSaude;
 import java.time.LocalDate;
 import java.util.List;
 
-public class AnimalResponseDTO {
 
-    private Long id;
+public class AnimalRequestDTO {
+
     private String nome;
     private String raca;
     private Integer idadeAnos;
@@ -18,10 +18,6 @@ public class AnimalResponseDTO {
     private OrigemAnimal origem;
     private List<TagSaude> tagsSaude;
     private Boolean adotado;
-    private long diasEmEspera;
-
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
 
     public String getNome() { return nome; }
     public void setNome(String nome) { this.nome = nome; }
@@ -48,7 +44,4 @@ public class AnimalResponseDTO {
 
     public Boolean getAdotado() { return adotado; }
     public void setAdotado(Boolean adotado) { this.adotado = adotado; }
-
-    public long getDiasEmEspera() { return diasEmEspera; }
-    public void setDiasEmEspera(long diasEmEspera) { this.diasEmEspera = diasEmEspera; }
 }

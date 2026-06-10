@@ -1,14 +1,15 @@
 package com.adoptme.api.animal.service;
 
 import com.adoptme.api.animal.domain.Animal;
+import com.adoptme.api.animal.dto.AnimalRequestDTO;
 import com.adoptme.api.animal.dto.AnimalResponseDTO;
 import com.adoptme.api.animal.enums.OrigemAnimal;
 import com.adoptme.api.animal.enums.TagSaude;
+import com.adoptme.api.animal.mapper.AnimalMapper;
 import com.adoptme.api.animal.repository.AnimalRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -19,38 +20,31 @@ public class AnimalService {
     @Autowired
     private AnimalRepository animalRepository;
 
-  
-    public AnimalResponseDTO cadastrar(Animal animal) {
-        Animal salvo = animalRepository.save(animal);
-        return new AnimalResponseDTO(salvo);
+    @Autowired
+    private AnimalMapper animalMapper;
+
+
+    public AnimalResponseDTO cadastrar(AnimalRequestDTO dto) {
+        Animal animal = animalMapper.toEntity(dto);
+        return animalMapper.toDto(animalRepository.save(animal));
     }
 
     public List<AnimalResponseDTO> listarTodos() {
-        return animalRepository.findAll()
-                .stream()
-                .map(AnimalResponseDTO::new)
-                .collect(Collectors.toList());
+        return animalMapper.toDtoList(animalRepository.findAll());
     }
 
     public Optional<AnimalResponseDTO> buscarPorId(Long id) {
         return animalRepository.findById(id)
-                .map(AnimalResponseDTO::new);
+                .map(animalMapper::toDto);
     }
 
-    public AnimalResponseDTO atualizar(Long id, Animal dadosNovos) {
+    public AnimalResponseDTO atualizar(Long id, AnimalRequestDTO dto) {
         Animal animal = animalRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Animal não encontrado com id: " + id));
 
-        animal.setNome(dadosNovos.getNome());
-        animal.setRaca(dadosNovos.getRaca());
-        animal.setIdadeAnos(dadosNovos.getIdadeAnos());
-        animal.setEspecie(dadosNovos.getEspecie());
-        animal.setDataEntradaAcolhimento(dadosNovos.getDataEntradaAcolhimento());
-        animal.setOrigem(dadosNovos.getOrigem());
-        animal.setTagsSaude(dadosNovos.getTagsSaude());
-        animal.setAdotado(dadosNovos.getAdotado());
+        animalMapper.updateEntityFromDto(dto, animal);
 
-        return new AnimalResponseDTO(animalRepository.save(animal));
+        return animalMapper.toDto(animalRepository.save(animal));
     }
 
     public void deletar(Long id) {
@@ -60,35 +54,30 @@ public class AnimalService {
         animalRepository.deleteById(id);
     }
 
-   
+
     public List<AnimalResponseDTO> listarPorTempoDeEspera() {
-        return animalRepository.findDisponiveisOrdenadosPorTempoEspera()
-                .stream()
-                .map(AnimalResponseDTO::new)
-                .collect(Collectors.toList());
+        return animalMapper.toDtoList(
+                animalRepository.findDisponiveisOrdenadosPorTempoEspera()
+        );
     }
 
-    
     public Optional<AnimalResponseDTO> animalComMaiorTempoDeEspera() {
         return animalRepository.findDisponiveisOrdenadosPorTempoEspera()
                 .stream()
                 .findFirst()
-                .map(AnimalResponseDTO::new);
+                .map(animalMapper::toDto);
     }
 
-   
+
     public List<AnimalResponseDTO> listarAnimaisDaRua() {
-        return animalRepository.findByOrigemAndAdotadoFalse(OrigemAnimal.RUA)
-                .stream()
-                .map(AnimalResponseDTO::new)
-                .collect(Collectors.toList());
+        return animalMapper.toDtoList(
+                animalRepository.findByOrigemAndAdotadoFalse(OrigemAnimal.RUA)
+        );
     }
 
-   
     public List<AnimalResponseDTO> listarPorTagSaude(TagSaude tag) {
-        return animalRepository.findByTagSaudeAndDisponiveis(tag)
-                .stream()
-                .map(AnimalResponseDTO::new)
-                .collect(Collectors.toList());
+        return animalMapper.toDtoList(
+                animalRepository.findByTagSaudeAndDisponiveis(tag)
+        );
     }
 }
