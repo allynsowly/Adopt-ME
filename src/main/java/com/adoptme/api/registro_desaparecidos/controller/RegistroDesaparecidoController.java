@@ -20,6 +20,28 @@ import java.util.List;
 public class RegistroDesaparecidoController {
 
     private final RegistroDesaparecidoService service;
+    private final RegistroDesaparecidoMapper mapper;
+
+    @PostMapping
+    @Operation(summary = "Criar registro de animal desaparecido", description = "Cadastra um alerta com as coordenadas geográficas do último avistamento.")
+    public ResponseEntity<RegistroDesaparecidoResponseDTO> criar(
+            @Valid @RequestBody RegistroDesaparecidoRequestDTO dto
+    ) {
+        RegistroDesaparecido entidade = mapper.toEntity(dto);
+        RegistroDesaparecidoResponseDTO response = service.cadastrar(entidade, dto.getUsuarioId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @GetMapping
+    @Operation(summary = "Listar todos os registros", description = "Filtra opcionalmente pelo status (DESAPARECIDO ou ENCONTRADO).")
+    public ResponseEntity<List<RegistroDesaparecidoResponseDTO>> listar(
+            @RequestParam(required = false) StatusDesaparecido status
+    ) {
+        List<RegistroDesaparecidoResponseDTO> lista = (status != null)
+                ? service.listarPorStatus(status)
+                : service.listarTodos();
+        return ResponseEntity.ok(lista);
+    }
 
     // ── POST /api/registros-desaparecidos ─────────────────────────────────────
     @PostMapping
