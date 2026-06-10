@@ -77,4 +77,18 @@ public class FormularioAdocaoController {
         service.rejeitarSolicitacao(id, dto.justificativa());
         return ResponseEntity.noContent().build();
     }
+
+    @DeleteMapping("/{id}")
+    @Operation(
+            summary = "Remove uma solicitação de adoção",
+            description = "Exclui permanentemente um formulário de adoção pelo ID."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Formulário removido com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Formulário não encontrado")
+    })
+    public ResponseEntity<Void> deletarSolicitacao(@PathVariable Long id) {
+        service.deletarSolicitacao(id);
+        return ResponseEntity.noContent().build();
+    }
 }
