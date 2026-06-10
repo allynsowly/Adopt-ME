@@ -42,6 +42,14 @@ public class EstabelecimentoController {
         return estabelecimento != null ? ResponseEntity.ok(estabelecimento) : ResponseEntity.notFound().build();
     }
 
+    @PutMapping("/{id}")
+    @Operation(summary = "Atualizar estabelecimento")
+    public ResponseEntity<EstabelecimentoResponseDTO> atualizar(
+            @PathVariable Long id,
+            @RequestBody EstabelecimentoRequestDTO dto) {
+        return ResponseEntity.ok(estabelecimentoService.atualizar(id, dto));
+    }
+
     @GetMapping("/buscar")
     @Operation(summary = "Buscar estabelecimento por nome")
     public ResponseEntity<List<EstabelecimentoResponseDTO>> buscarPorNome(@RequestParam String nome) {

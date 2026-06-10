@@ -3,9 +3,12 @@ package com.adoptme.api.registro_desaparecidos.controller;
 import com.adoptme.api.registro_desaparecidos.domain.RegistroDesaparecido;
 import com.adoptme.api.registro_desaparecidos.dto.AtualizarCoordenadasDTO;
 import com.adoptme.api.registro_desaparecidos.dto.AtualizarStatusDTO;
+import com.adoptme.api.registro_desaparecidos.dto.RegistroDesaparecidoRequestDTO;
 import com.adoptme.api.registro_desaparecidos.dto.RegistroDesaparecidoResponseDTO;
 import com.adoptme.api.registro_desaparecidos.enums.StatusDesaparecido;
+import com.adoptme.api.registro_desaparecidos.mapper.RegistroDesaparecidoMapper;
 import com.adoptme.api.registro_desaparecidos.service.RegistroDesaparecidoService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,49 +26,32 @@ public class RegistroDesaparecidoController {
     private final RegistroDesaparecidoMapper mapper;
 
     @PostMapping
-    @Operation(summary = "Criar registro de animal desaparecido", description = "Cadastra um alerta com as coordenadas geográficas do último avistamento.")
+    @Operation(
+            summary = "Criar registro de animal desaparecido",
+            description = "Cadastra um alerta com as coordenadas geográficas do último avistamento."
+    )
     public ResponseEntity<RegistroDesaparecidoResponseDTO> criar(
+            @RequestParam Long usuarioId,
             @Valid @RequestBody RegistroDesaparecidoRequestDTO dto
     ) {
         RegistroDesaparecido entidade = mapper.toEntity(dto);
-        RegistroDesaparecidoResponseDTO response = service.cadastrar(entidade, dto.getUsuarioId());
+        RegistroDesaparecidoResponseDTO response = service.cadastrar(entidade, usuarioId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping
-    @Operation(summary = "Listar todos os registros", description = "Filtra opcionalmente pelo status (DESAPARECIDO ou ENCONTRADO).")
+    @Operation(
+            summary = "Listar todos os registros",
+            description = "Filtra opcionalmente pelo status (DESAPARECIDO ou ENCONTRADO)."
+    )
     public ResponseEntity<List<RegistroDesaparecidoResponseDTO>> listar(
             @RequestParam(required = false) StatusDesaparecido status
     ) {
-        List<RegistroDesaparecidoResponseDTO> lista = (status != null)
-                ? service.listarPorStatus(status)
-                : service.listarTodos();
+        List<RegistroDesaparecidoResponseDTO> lista =
+                (status != null) ? service.listarPorStatus(status) : service.listarTodos();
         return ResponseEntity.ok(lista);
     }
 
-    // ── POST /api/registros-desaparecidos ─────────────────────────────────────
-    @PostMapping
-    public ResponseEntity<RegistroDesaparecidoResponseDTO> criar(
-            @RequestParam Long usuarioId,
-            @Valid @RequestBody RegistroDesaparecido dados
-    ) {
-        // Ajustado para chamar 'cadastrar' passando os dados e o ID, conforme seu Service
-        RegistroDesaparecidoResponseDTO response = service.cadastrar(dados, usuarioId);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    }
-
-    // ── GET /api/registros-desaparecidos ──────────────────────────────────────
-    @GetMapping
-    public ResponseEntity<List<RegistroDesaparecidoResponseDTO>> listar(
-            @RequestParam(required = false) StatusDesaparecido status
-    ) {
-        List<RegistroDesaparecidoResponseDTO> lista = (status != null)
-                ? service.listarPorStatus(status)
-                : service.listarTodos();
-        return ResponseEntity.ok(lista);
-    }
-
-    // ── GET /api/registros-desaparecidos/{id} ─────────────────────────────────
     @GetMapping("/{id}")
     public ResponseEntity<RegistroDesaparecidoResponseDTO> buscarPorId(@PathVariable Long id) {
         return service.buscarPorId(id)
@@ -73,7 +59,6 @@ public class RegistroDesaparecidoController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // ── GET /api/registros-desaparecidos/usuario/{usuarioId} ──────────────────
     @GetMapping("/usuario/{usuarioId}")
     public ResponseEntity<List<RegistroDesaparecidoResponseDTO>> listarPorUsuario(
             @PathVariable Long usuarioId
@@ -81,7 +66,6 @@ public class RegistroDesaparecidoController {
         return ResponseEntity.ok(service.listarPorUsuario(usuarioId));
     }
 
-    // ── PATCH /api/registros-desaparecidos/{id}/status ────────────────────────
     @PatchMapping("/{id}/status")
     public ResponseEntity<RegistroDesaparecidoResponseDTO> atualizarStatus(
             @PathVariable Long id,
@@ -90,7 +74,6 @@ public class RegistroDesaparecidoController {
         return ResponseEntity.ok(service.atualizarStatus(id, dto));
     }
 
-    // ── PATCH /api/registros-desaparecidos/{id}/coordenadas ───────────────────
     @PatchMapping("/{id}/coordenadas")
     public ResponseEntity<RegistroDesaparecidoResponseDTO> atualizarCoordenadas(
             @PathVariable Long id,
@@ -99,7 +82,6 @@ public class RegistroDesaparecidoController {
         return ResponseEntity.ok(service.atualizarCoordenadas(id, dto));
     }
 
-    // ── DELETE /api/registros-desaparecidos/{id} ──────────────────────────────
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         service.deletar(id);

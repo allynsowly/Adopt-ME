@@ -7,7 +7,9 @@ import com.adoptme.api.estabelecimento.dto.EstabelecimentoResponseDTO;
 import com.adoptme.api.estabelecimento.mapper.EstabelecimentoMapper;
 import com.adoptme.api.estabelecimento.repository.EstabelecimentoRepository;
 import com.adoptme.api.usuario.domain.Usuario;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -43,6 +45,29 @@ public class EstabelecimentoService {
         return estabelecimentoRepository.findById(id)
                 .map(estabelecimentoMapper::toDto)
                 .orElse(null);
+    }
+
+    public EstabelecimentoResponseDTO atualizar(Long id, EstabelecimentoRequestDTO dto) {
+        Estabelecimento estabelecimento = estabelecimentoRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Estabelecimento não encontrado"
+                ));
+
+        estabelecimento.setNome(dto.getNome());
+        estabelecimento.setTipo(dto.getTipo());
+        estabelecimento.setLatitude(dto.getLatitude());
+        estabelecimento.setLongitude(dto.getLongitude());
+        estabelecimento.setEndereco(dto.getEndereco());
+        estabelecimento.setEh24hrs(dto.getEh24hrs());
+        estabelecimento.setTelefone(dto.getTelefone());
+
+        if (dto.getUsuarioId() != null) {
+            Usuario usuario = new Usuario();
+            usuario.setId(dto.getUsuarioId());
+            estabelecimento.setUsuario(usuario);
+        }
+
+        return estabelecimentoMapper.toDto(estabelecimentoRepository.save(estabelecimento));
     }
 
     public List<EstabelecimentoResponseDTO> buscarPorNome(String nome) {
