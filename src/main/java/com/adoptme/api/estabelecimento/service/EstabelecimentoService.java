@@ -2,45 +2,63 @@ package com.adoptme.api.estabelecimento.service;
 
 import com.adoptme.api.estabelecimento.domain.Estabelecimento;
 import com.adoptme.api.estabelecimento.domain.TipoEstabelecimento;
+import com.adoptme.api.estabelecimento.dto.EstabelecimentoRequestDTO;
+import com.adoptme.api.estabelecimento.dto.EstabelecimentoResponseDTO;
+import com.adoptme.api.estabelecimento.mapper.EstabelecimentoMapper;
 import com.adoptme.api.estabelecimento.repository.EstabelecimentoRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.adoptme.api.usuario.domain.Usuario;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class EstabelecimentoService {
 
-    @Autowired
-    private EstabelecimentoRepository estabelecimentoRepository;
+    private final EstabelecimentoRepository estabelecimentoRepository;
+    private final EstabelecimentoMapper estabelecimentoMapper;
 
-    public Estabelecimento criar(Estabelecimento estabelecimento) {
-        return estabelecimentoRepository.save(estabelecimento);
+    public EstabelecimentoService(EstabelecimentoRepository estabelecimentoRepository,
+                                  EstabelecimentoMapper estabelecimentoMapper) {
+        this.estabelecimentoRepository = estabelecimentoRepository;
+        this.estabelecimentoMapper = estabelecimentoMapper;
     }
 
-    public List<Estabelecimento> listarTodos() {
-        return estabelecimentoRepository.findAll();
+    public EstabelecimentoResponseDTO criar(EstabelecimentoRequestDTO dto) {
+        Estabelecimento estabelecimento = estabelecimentoMapper.toEntity(dto);
+
+        if (dto.getUsuarioId() != null) {
+            Usuario usuario = new Usuario();
+            usuario.setId(dto.getUsuarioId());
+            estabelecimento.setUsuario(usuario);
+        }
+
+        return estabelecimentoMapper.toDto(estabelecimentoRepository.save(estabelecimento));
     }
 
-    public Optional<Estabelecimento> buscarPorId(Long id) {
-        return estabelecimentoRepository.findById(id);
+    public List<EstabelecimentoResponseDTO> listarTodos() {
+        return estabelecimentoMapper.toDtoList(estabelecimentoRepository.findAll());
     }
 
-    public List<Estabelecimento> buscarPorNome(String nome) {
-        return estabelecimentoRepository.findByNomeContainingIgnoreCase(nome);
+    public EstabelecimentoResponseDTO buscarPorId(Long id) {
+        return estabelecimentoRepository.findById(id)
+                .map(estabelecimentoMapper::toDto)
+                .orElse(null);
     }
 
-    public List<Estabelecimento> buscarPorTipo(TipoEstabelecimento tipo) {
-        return estabelecimentoRepository.findByTipo(tipo);
+    public List<EstabelecimentoResponseDTO> buscarPorNome(String nome) {
+        return estabelecimentoMapper.toDtoList(estabelecimentoRepository.findByNomeContainingIgnoreCase(nome));
     }
 
-    public List<Estabelecimento> buscar24Horas() {
-        return estabelecimentoRepository.findByEh24hrs(true);
+    public List<EstabelecimentoResponseDTO> buscarPorTipo(TipoEstabelecimento tipo) {
+        return estabelecimentoMapper.toDtoList(estabelecimentoRepository.findByTipo(tipo));
     }
 
-    public List<Estabelecimento> buscarPorUsuario(Long usuarioId) {
-        return estabelecimentoRepository.findByUsuarioId(usuarioId);
+    public List<EstabelecimentoResponseDTO> buscar24Horas() {
+        return estabelecimentoMapper.toDtoList(estabelecimentoRepository.findByEh24hrs(true));
+    }
+
+    public List<EstabelecimentoResponseDTO> buscarPorUsuario(Long usuarioId) {
+        return estabelecimentoMapper.toDtoList(estabelecimentoRepository.findByUsuarioId(usuarioId));
     }
 
     public void deletar(Long id) {

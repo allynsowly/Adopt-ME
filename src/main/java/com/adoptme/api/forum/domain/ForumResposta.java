@@ -22,18 +22,11 @@ public class ForumResposta {
     @ManyToOne
     @JoinColumn(name = "usuario_id")
     private Usuario usuario;
-    @JsonIgnoreProperties({
-            "perguntas",
-            "respostas"
-    })
 
     @ManyToOne
     @JoinColumn(name = "pergunta_id")
+    @JsonIgnoreProperties({"respostas"})
     private ForumPergunta pergunta;
-    @JsonIgnoreProperties({
-            "respostas"
-    import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-    })
 
     public ForumResposta() {}
 
